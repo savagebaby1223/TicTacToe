@@ -36,3 +36,5 @@ identice pe un rând, o coloană sau o diagonală.
   și afișează mesajele către jucători.
 - **Listener** (`listener.hpp`) — componenta care preia intrarea de la jucător: căsuța
   aleasă pentru mutare și eventuala intenție de a părăsi jocul.
+     ## Autor 
+     Ovidiu
