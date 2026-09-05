@@ -1,0 +1,14 @@
+# Fisiere temporare Visual Studio
+.vs/
+*.slnx
+ipch/
+*.db
+*.db-shm
+*.db-wal
+*.opendb
+Debug/
+Release/
+x64/
+x86/
+*.user
+ProjectSettings.json
