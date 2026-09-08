@@ -38,3 +38,25 @@ identice pe un rând, o coloană sau o diagonală.
   aleasă pentru mutare și eventuala intenție de a părăsi jocul.
      ## Autor 
      Ovidiu
+## Construirea proiectului
+
+Proiectul este scris în C++ și se compilează cu ajutorul compilatorului `g++`
+și al utilitarului `make`.
+
+### Cerințe
+
+- compilatorul MinGW G++
+- utilitarul make
+
+### Pași de construire
+
+Deschideți un terminal în directorul proiectului și rulați:
+
+Comanda `make` compilează fiecare fișier sursă `.cpp` într-un fișier obiect `.o`
+și apoi le leagă într-un executabil numit `TicTacToe.exe`.
+
+Pentru a șterge fișierele generate (obiecte și executabil), rulați:
+
+### Compilare manuală
+
+Alternativ, un singur fișier poate fi compilat într-un fișier obiect astfel:

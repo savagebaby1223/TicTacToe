@@ -12,3 +12,6 @@ x64/
 x86/
 *.user
 ProjectSettings.json
+# Fisiere obiect si executabile (Lab 2)
+*.o
+*.exe
