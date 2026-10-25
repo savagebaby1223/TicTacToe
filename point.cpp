@@ -1,25 +1,8 @@
 #include "point.hpp"
 
-Point::Point() {
-    row = 0;
-    col = 0;
-}
+Point::Point() : row(0), col(0) {}
 
-Point::Point(int row, int col) {
-    this->row = row;
-    this->col = col;
-}
-
-Point::Point(const Point& other) {
-    row = other.row;
-    col = other.col;
-}
-
-Point& Point::operator=(const Point& other) {
-    row = other.row;
-    col = other.col;
-    return *this;
-}
+Point::Point(int row, int col) : row(row), col(col) {}
 
 bool Point::operator==(const Point& other) const {
     return row == other.row && col == other.col;

@@ -1,19 +1,22 @@
 #pragma once
 
+#include <memory>
 #include "board.hpp"
 #include "player.hpp"
-#include "point.hpp"
-#include "cell.hpp"
+#include "painter.hpp"
+#include "game_result.hpp"
 
 class GameEngine {
-	Board _board;
-	Player _players[2];
-	int _currentPlayer;
+    Board _board;
+    // smart pointers in loc de pointeri bruti / alocare manuala
+    std::unique_ptr<Player> _players[2];
+    Painter _painter;
+    int _currentPlayer;
 public:
-	GameEngine();
-	void Init();
-	void Run();
-	bool MakeMove(const Point& position);
-	Cell CheckWinner() const;
-	void SwitchPlayer();
+    GameEngine();
+
+    void Init();
+    void Run();                       // bucla principala a jocului
+    GameResult CheckResult() const;   // X castiga / O castiga / remiza / inca se joaca
+    void SwitchPlayer();
 };

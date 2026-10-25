@@ -1,43 +1,24 @@
 #include "board.hpp"
+#include <algorithm>
 
 Board::Board() {
     Reset();
 }
 
-Board::Board(const Board& other) {
-    for (int r = 0; r < 3; r++)
-        for (int c = 0; c < 3; c++)
-            _cells[r][c] = other._cells[r][c];
-}
-
-Board& Board::operator=(const Board& other) {
-    for (int r = 0; r < 3; r++)
-        for (int c = 0; c < 3; c++)
-            _cells[r][c] = other._cells[r][c];
-    return *this;
-}
-
-bool Board::operator==(const Board& other) const {
-    for (int r = 0; r < 3; r++)
-        for (int c = 0; c < 3; c++)
-            if (_cells[r][c] != other._cells[r][c])
-                return false;
-    return true;
-}
-
-bool Board::operator!=(const Board& other) const {
-    return !(*this == other);
-}
-
 void Board::Reset() {
-    for (int r = 0; r < 3; r++)
-        for (int c = 0; c < 3; c++)
-            _cells[r][c] = Cell::Empty;
+    // algoritm STL std::fill pentru fiecare rand
+    for (auto& row : _cells) {
+        std::fill(row.begin(), row.end(), Cell::Empty);
+    }
+}
+
+bool Board::IsValid(const Point& p) const {
+    return p.row >= 0 && p.row < 3 && p.col >= 0 && p.col < 3;
 }
 
 bool Board::PlaceSymbol(const Point& position, Cell symbol) {
-    if (_cells[position.row][position.col] != Cell::Empty)
-        return false;
+    if (!IsValid(position)) return false;
+    if (_cells[position.row][position.col] != Cell::Empty) return false;
     _cells[position.row][position.col] = symbol;
     return true;
 }
@@ -47,28 +28,28 @@ Cell Board::GetCell(const Point& position) const {
 }
 
 bool Board::IsFull() const {
-    for (int r = 0; r < 3; r++)
-        for (int c = 0; c < 3; c++)
-            if (_cells[r][c] == Cell::Empty)
-                return false;
-    return true;
+    // algoritm STL std::all_of + std::none_of
+    return std::all_of(_cells.begin(), _cells.end(),
+        [](const std::array<Cell, 3>& row) {
+            return std::none_of(row.begin(), row.end(),
+                [](Cell c) { return c == Cell::Empty; });
+        });
+}
+
+static char ToChar(Cell c) {
+    if (c == Cell::X) return 'X';
+    if (c == Cell::O) return 'O';
+    return '.';
 }
 
 std::ostream& operator<<(std::ostream& out, const Board& b) {
     for (int r = 0; r < 3; r++) {
         for (int c = 0; c < 3; c++) {
-            Cell cell = b.GetCell({ r, c });
-            if (cell == Cell::X) out << " X ";
-            else if (cell == Cell::O) out << " O ";
-            else out << " . ";
-            if (c < 2) out << "|";
+            out << ' ' << ToChar(b.GetCell({ r, c })) << ' ';
+            if (c < 2) out << '|';
         }
-        out << "\n";
+        out << '\n';
+        if (r < 2) out << "---+---+---\n";
     }
     return out;
-}
-
-std::istream& operator>>(std::istream& in, Board& b) {
-    b.Reset();
-    return in;
 }
