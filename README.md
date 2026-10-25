@@ -60,3 +60,13 @@ Pentru a șterge fișierele generate (obiecte și executabil), rulați:
 ### Compilare manuală
 
 Alternativ, un singur fișier poate fi compilat într-un fișier obiect astfel:
+
+## Laborator 3 — Constructori și operatori
+
+Pentru structurile de date ale jocului (Point, Player, Board) au fost definiți:
+constructor implicit, constructor de copiere, constructor cu parametri, operator
+de atribuire (=), operatori de comparare (==, !=) și operatori de intrare/ieșire
+(>>, <<).
+
+Pentru redare a fost definită clasa de bază abstractă `Drawable` (în `drawable.hpp`),
+din care moștenește clasa `Painter`.
