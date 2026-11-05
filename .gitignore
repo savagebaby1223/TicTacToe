@@ -15,3 +15,8 @@ ProjectSettings.json
 # Fisiere obiect si executabile (Lab 2)
 *.o
 *.exe
+# Biblioteca statica generata (Lab 5)
+*.a
+
+# Log de construire
+*.log
