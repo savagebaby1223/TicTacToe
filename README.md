@@ -39,6 +39,8 @@ un rând, o coloană sau o diagonală.
 - **GameEngine** (`game_engine.hpp`) — motorul jocului; reunește tabla și jucătorii,
   ține evidența jucătorului aflat la rând și aplică regulile (mutări valide, verificarea
   câștigătorului, remiză, schimbarea rândului).
+- **ScoreStore** (`score_store.hpp`) — păstrează rezultatele partidelor într-o bază de
+  date SQLite și afișează istoricul jocurilor.
 - **Drawable** (`drawable.hpp`) — clasă de bază abstractă pentru redare.
 - **Painter** (`painter.hpp`) — componenta de afișare, care desenează tabla pe ecran
   și afișează mesajele către jucători.
@@ -56,6 +58,7 @@ Proiectul este scris în C++ și se compilează cu ajutorul compilatorului `g++`
 
 - compilatorul MinGW G++
 - utilitarul make
+- biblioteca SQLite (în MSYS2 MINGW64: `pacman -S mingw-w64-x86_64-sqlite3`)
 
 ### Pași de construire
 
@@ -63,8 +66,9 @@ Deschideți un terminal în directorul proiectului și rulați:
 
     make
 
-Comanda `make` compilează fiecare fișier sursă `.cpp` într-un fișier obiect `.o`
-și apoi le leagă într-un executabil numit `TicTacToe.exe`.
+Comanda `make` compilează clasele jocului în fișiere obiect `.o`, le grupează în
+biblioteca statică `libgame.a`, apoi leagă `main.o` de această bibliotecă și de
+biblioteca externă SQLite, creând executabilul `TicTacToe.exe`.
 
 Pentru a șterge fișierele generate (obiecte și executabil), rulați:
 
@@ -104,3 +108,18 @@ De asemenea, a fost completată logica jocului:
 - starea de remiză (`Draw`) prin enumerarea `GameResult`;
 - bucla principală de joc completă în `GameEngine::Run()`, cu alegerea modului de joc
   (unul sau doi jucători) la pornire.
+
+## Laborator 5 — Crearea și utilizarea bibliotecilor
+
+- **Bibliotecă statică proprie**: clasele jocului (`Point`, `Board`, `Player`,
+  `HumanPlayer`, `ComputerPlayer`, `Painter`, `ScoreStore`, `GameEngine`) sunt compilate
+  în biblioteca statică `libgame.a` (cu `ar rcs`). Aplicația (`main.cpp`) se leagă de ea
+  cu `-L. -lgame`.
+- **Bibliotecă externă SQLite**: rezultatul fiecărei partide (câștigător, mod de joc,
+  data) se salvează în baza de date `results.db`. La finalul jocului se afișează
+  istoricul tuturor partidelor. Aplicația se leagă de SQLite cu `-lsqlite3`.
+- **Fișier de construcție**: `Makefile` a fost rescris — întâi construiește biblioteca
+  `libgame.a`, apoi leagă executabilul de biblioteca proprie și de SQLite.
+
+Prompturile și răspunsurile asistentului AI folosit la acest laborator sunt în
+fișierul `Lab05.md`.

@@ -3,11 +3,12 @@
 #include "computer_player.hpp"
 #include <iostream>
 
-GameEngine::GameEngine() : _currentPlayer(0) {}
+GameEngine::GameEngine() : _scores("results.db"), _currentPlayer(0), _mode(1) {}
 
 void GameEngine::Init() {
     _board.Reset();
     _currentPlayer = 0;
+    _scores.Init();   // creeaza tabelul in baza de date daca nu exista
 
     // intreaba modul de joc
     int mode = 0;
@@ -16,6 +17,7 @@ void GameEngine::Init() {
     std::cout << "  2 - Doi jucatori\n";
     std::cout << "Optiunea: ";
     std::cin >> mode;
+    _mode = (mode == 2) ? 2 : 1;
 
     // jucatorul 1 e mereu om (X)
     _players[0] = std::make_unique<HumanPlayer>(Cell::X);
@@ -79,4 +81,8 @@ void GameEngine::Run() {
     if (result == GameResult::XWins)      _painter.WriteMessage("A castigat X!");
     else if (result == GameResult::OWins) _painter.WriteMessage("A castigat O!");
     else                                  _painter.WriteMessage("Remiza!");
+
+    // salveaza rezultatul in baza de date SQLite si afiseaza istoricul
+    _scores.SaveResult(result, _mode);
+    _scores.PrintHistory();
 }
