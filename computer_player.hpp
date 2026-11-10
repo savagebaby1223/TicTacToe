@@ -2,12 +2,14 @@
 
 #include "player.hpp"
 
+// jucator controlat de calculator, foloseste algoritmul minimax:
+// analizeaza toate mutarile posibile pana la finalul jocului si alege cea mai buna,
+// deci nu pierde niciodata (castiga sau face remiza)
 class ComputerPlayer : public Player {
-    // incearca sa gaseasca o mutare castigatoare pentru simbolul dat
-    Point FindWinningMove(const Board& board, Cell symbol) const;
+    // scorul unei pozitii: pozitiv daca calculatorul castiga, negativ daca pierde, 0 la remiza
+    int Minimax(const Board& board, bool myTurn, int depth) const;
 public:
     ComputerPlayer(Cell symbol);
 
-    // alege mutarea singur: castiga daca poate, altfel blocheaza, altfel ia prima libera
     Point GetMove(const Board& board) const override;
 };

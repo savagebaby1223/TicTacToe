@@ -5,6 +5,7 @@
 // clasa de baza abstracta pentru redare
 class Drawable {
 public:
-    virtual void DrawBoard(const Board& board) = 0;
+    // const: desenarea doar citeste tabla, nu modifica nimic
+    virtual void DrawBoard(const Board& board) const = 0;
     virtual ~Drawable() {}
 };

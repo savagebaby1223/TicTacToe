@@ -36,6 +36,25 @@ bool Board::IsFull() const {
         });
 }
 
+Cell Board::GetWinner() const {
+    // cele 8 linii castigatoare: 3 randuri, 3 coloane, 2 diagonale
+    static const std::array<std::array<Point, 3>, 8> lines = {{
+        {{ {0,0}, {0,1}, {0,2} }}, {{ {1,0}, {1,1}, {1,2} }}, {{ {2,0}, {2,1}, {2,2} }},
+        {{ {0,0}, {1,0}, {2,0} }}, {{ {0,1}, {1,1}, {2,1} }}, {{ {0,2}, {1,2}, {2,2} }},
+        {{ {0,0}, {1,1}, {2,2} }}, {{ {0,2}, {1,1}, {2,0} }}
+    }};
+    for (const auto& line : lines) {
+        Cell first = GetCell(line[0]);
+        // algoritm STL std::all_of: toate cele 3 casute au acelasi simbol
+        if (first != Cell::Empty &&
+            std::all_of(line.begin(), line.end(),
+                [&](const Point& p) { return GetCell(p) == first; })) {
+            return first;
+        }
+    }
+    return Cell::Empty;
+}
+
 static char ToChar(Cell c) {
     if (c == Cell::X) return 'X';
     if (c == Cell::O) return 'O';
