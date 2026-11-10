@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <string>
 #include "board.hpp"
 #include "player.hpp"
 #include "painter.hpp"
@@ -11,10 +12,12 @@ class GameEngine {
     Board _board;
     // smart pointers in loc de pointeri bruti / alocare manuala
     std::unique_ptr<Player> _players[2];
+    std::string _names[2];   // numele afisate ale jucatorilor
     Painter _painter;
-    ScoreStore _scores;   // pastreaza rezultatele in SQLite
+    ScoreStore _scores;      // pastreaza rezultatele in SQLite
     int _currentPlayer;
-    int _mode;            // 1 = contra calculatorului, 2 = doi jucatori
+    int _mode;               // 1 = om vs calculator, 2 = om vs om, 3 = calculator vs calculator
+    int _delayMs;            // pauza dupa fiecare mutare (folosita la calculator vs calculator)
 public:
     GameEngine();
 

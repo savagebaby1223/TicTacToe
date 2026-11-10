@@ -2,52 +2,66 @@
 #include "board.hpp"
 #include <vector>
 #include <algorithm>
+#include <random>
 #include <iostream>
 
 ComputerPlayer::ComputerPlayer(Cell symbol) : Player(symbol) {}
 
-// cauta o mutare care aliniaza 3 simboluri pentru 'symbol'
-Point ComputerPlayer::FindWinningMove(const Board& board, Cell symbol) const {
-    for (int r = 0; r < 3; r++) {
-        for (int c = 0; c < 3; c++) {
-            Point p{ r, c };
-            if (board.GetCell(p) != Cell::Empty) continue;
-            // simuleaza mutarea pe o copie a tablei
-            Board copy = board;
-            copy.PlaceSymbol(p, symbol);
-            // verifica daca acum exista o linie de 3 'symbol'
-            for (int i = 0; i < 3; i++) {
-                if (copy.GetCell({ i,0 }) == symbol && copy.GetCell({ i,1 }) == symbol && copy.GetCell({ i,2 }) == symbol) return p;
-                if (copy.GetCell({ 0,i }) == symbol && copy.GetCell({ 1,i }) == symbol && copy.GetCell({ 2,i }) == symbol) return p;
-            }
-            if (copy.GetCell({ 0,0 }) == symbol && copy.GetCell({ 1,1 }) == symbol && copy.GetCell({ 2,2 }) == symbol) return p;
-            if (copy.GetCell({ 0,2 }) == symbol && copy.GetCell({ 1,1 }) == symbol && copy.GetCell({ 2,0 }) == symbol) return p;
-        }
-    }
-    return { -1, -1 };  // nu exista mutare castigatoare
-}
-
-Point ComputerPlayer::GetMove(const Board& board) const {
-    std::cout << "Calculatorul alege mutarea...\n";
-
-    // simbolul adversarului
-    Cell opponent = (_symbol == Cell::X) ? Cell::O : Cell::X;
-
-    // 1. daca poate castiga, castiga
-    Point win = FindWinningMove(board, _symbol);
-    if (win != Point{ -1, -1 }) return win;
-
-    // 2. daca adversarul poate castiga la urmatoarea, blocheaza
-    Point block = FindWinningMove(board, opponent);
-    if (block != Point{ -1, -1 }) return block;
-
-    // 3. altfel: colecteaza toate casutele libere si ia prima (algoritm STL)
-    std::vector<Point> free;
+// toate casutele libere de pe tabla (container STL std::vector)
+static std::vector<Point> FreeCells(const Board& board) {
+    std::vector<Point> cells;
     for (int r = 0; r < 3; r++)
         for (int c = 0; c < 3; c++)
             if (board.GetCell({ r, c }) == Cell::Empty)
-                free.push_back({ r, c });
+                cells.push_back({ r, c });
+    return cells;
+}
 
-    if (!free.empty()) return free.front();
-    return { -1, -1 };
+int ComputerPlayer::Minimax(const Board& board, bool myTurn, int depth) const {
+    Cell opponent = (_symbol == Cell::X) ? Cell::O : Cell::X;
+
+    // stari finale: castig rapid = scor mai mare, pierdere tarzie = scor mai mic
+    Cell winner = board.GetWinner();
+    if (winner == _symbol)  return 10 - depth;
+    if (winner == opponent) return depth - 10;
+    if (board.IsFull())     return 0;
+
+    // la randul meu caut scorul maxim, la randul adversarului scorul minim
+    int best = myTurn ? -100 : 100;
+    for (const Point& p : FreeCells(board)) {
+        Board next = board;   // simulez mutarea pe o copie a tablei
+        next.PlaceSymbol(p, myTurn ? _symbol : opponent);
+        int score = Minimax(next, !myTurn, depth + 1);
+        best = myTurn ? std::max(best, score) : std::min(best, score);
+    }
+    return best;
+}
+
+Point ComputerPlayer::GetMove(const Board& board) const {
+    std::cout << "Calculatorul (" << (_symbol == Cell::X ? 'X' : 'O') << ") alege mutarea...\n";
+
+    std::vector<Point> moves = FreeCells(board);
+    if (moves.empty()) return { -1, -1 };
+
+    // scorul fiecarei mutari posibile
+    std::vector<int> scores;
+    for (const Point& p : moves) {
+        Board next = board;
+        next.PlaceSymbol(p, _symbol);
+        scores.push_back(Minimax(next, false, 1));
+    }
+
+    // algoritm STL std::max_element: cel mai bun scor
+    int bestScore = *std::max_element(scores.begin(), scores.end());
+
+    // pastrez toate mutarile la fel de bune
+    std::vector<Point> bestMoves;
+    for (size_t i = 0; i < moves.size(); i++)
+        if (scores[i] == bestScore)
+            bestMoves.push_back(moves[i]);
+
+    // aleg una la intamplare, ca partidele sa nu fie mereu identice
+    static std::mt19937 rng(std::random_device{}());
+    std::uniform_int_distribution<size_t> pick(0, bestMoves.size() - 1);
+    return bestMoves[pick(rng)];
 }
