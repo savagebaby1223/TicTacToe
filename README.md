@@ -3,14 +3,18 @@
 ## Despre proiect
 
 Acest proiect este o implementare a jocului clasic X și 0 (Tic-tac-toe), scrisă în
-limbajul C++. Jocul se poate juca în doi (ambii jucători oameni) sau un jucător
-contra calculatorului. Se joacă pe o tablă de 3×3 căsuțe, punând pe rând simbolul
+limbajul C++. Jocul are trei moduri: un jucător contra calculatorului, doi jucători
+oameni, sau calculator contra calculator. Se joacă pe o tablă de 3×3 căsuțe, punând pe rând simbolul
 (X sau O). Câștigă cel care reușește primul să alinieze trei simboluri identice pe
 un rând, o coloană sau o diagonală.
 
 ## Cum se joacă
 
-1. La pornire se alege modul: un jucător (contra calculatorului) sau doi jucători.
+1. La pornire se alege modul de joc:
+   - `1` — un jucător contra calculatorului;
+   - `2` — doi jucători;
+   - `3` — calculator contra calculator (cu o pauză de o secundă după fiecare mutare,
+     ca partida să poată fi urmărită).
 2. Tabla are 9 căsuțe, dispuse pe 3 rânduri și 3 coloane, toate goale la început.
 3. Cei doi jucători mută pe rând: unul joacă cu X, celălalt cu O.
 4. La rândul său, un jucător alege o căsuță liberă (introduce rândul și coloana, 0-2)
@@ -33,9 +37,12 @@ un rând, o coloană sau o diagonală.
   simbolul și declară metoda virtuală pură `GetMove`.
 - **HumanPlayer** (`human_player.hpp`) — jucător uman; citește mutarea de la tastatură.
 - **ComputerPlayer** (`computer_player.hpp`) — jucător controlat de calculator; alege
-  singur mutarea (câștigă dacă poate, altfel blochează adversarul).
+  mutarea cu algoritmul **minimax**: analizează toate mutările posibile până la finalul
+  partidei și o alege pe cea mai bună, deci nu pierde niciodată (câștigă sau face
+  remiză). Dintre mutările la fel de bune alege una la întâmplare.
 - **Board** (`board.hpp`) — clasa tablei de joc; păstrează conținutul celor 9 căsuțe
-  și oferă operații de plasare a simbolurilor, golire și verificare a stării tablei.
+  și oferă operații de plasare a simbolurilor, golire, verificare dacă e plină și
+  determinarea câștigătorului (`GetWinner`).
 - **GameEngine** (`game_engine.hpp`) — motorul jocului; reunește tabla și jucătorii,
   ține evidența jucătorului aflat la rând și aplică regulile (mutări valide, verificarea
   câștigătorului, remiză, schimbarea rândului).
@@ -43,7 +50,8 @@ un rând, o coloană sau o diagonală.
   date SQLite și afișează istoricul jocurilor.
 - **Drawable** (`drawable.hpp`) — clasă de bază abstractă pentru redare.
 - **Painter** (`painter.hpp`) — componenta de afișare, care desenează tabla pe ecran
-  și afișează mesajele către jucători.
+  și afișează mesajele către jucători. Metodele ei sunt `const`, pentru că doar
+  afișează și nu modifică starea jocului.
 
 ## Autor
 
@@ -98,16 +106,21 @@ La acest laborator jocul a fost rescris pentru a folosi biblioteca standard C++:
 - **std::string**: mesajele afișate folosesc `std::string` în loc de `char*`.
 - **Fluxuri I/O**: citirea și afișarea se fac prin `std::cin` / `std::cout` și
   operatorii `>>` / `<<`.
-- **Algoritmi STL**: `std::fill`, `std::all_of`, `std::none_of` pentru operațiile pe
-  tablă.
+- **Algoritmi STL**: `std::fill` (golirea tablei), `std::all_of` / `std::none_of`
+  (tabla plină, linie câștigătoare), `std::max_element` (cea mai bună mutare a
+  calculatorului).
 
 De asemenea, a fost completată logica jocului:
 
 - interfața `Player` (clasă abstractă) cu `HumanPlayer` (joacă de la tastatură) și
-  `ComputerPlayer` (joacă singur: câștigă dacă poate, altfel blochează adversarul);
+  `ComputerPlayer` (joacă singur cu algoritmul minimax și nu pierde niciodată);
 - starea de remiză (`Draw`) prin enumerarea `GameResult`;
 - bucla principală de joc completă în `GameEngine::Run()`, cu alegerea modului de joc
-  (unul sau doi jucători) la pornire.
+  la pornire: om contra calculator, doi oameni, sau calculator contra calculator;
+- în modul calculator contra calculator, după fiecare mutare firul de execuție face o
+  pauză de o secundă (`std::this_thread::sleep_for`), ca mutările să poată fi urmărite,
+  iar la final se afișează care calculator a câștigat sau remiza. Doi jucători perfecți
+  ajung întotdeauna la remiză, deci acesta e rezultatul așteptat.
 
 ## Laborator 5 — Crearea și utilizarea bibliotecilor
 
