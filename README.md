@@ -1,138 +1,170 @@
 # TicTacToe
 
-## Despre proiect
+Joc **X și 0** (Tic-tac-toe) în consolă, scris în C++14.
 
-Acest proiect este o implementare a jocului clasic X și 0 (Tic-tac-toe), scrisă în
-limbajul C++. Jocul are trei moduri: un jucător contra calculatorului, doi jucători
-oameni, sau calculator contra calculator. Se joacă pe o tablă de 3×3 căsuțe, punând pe rând simbolul
-(X sau O). Câștigă cel care reușește primul să alinieze trei simboluri identice pe
-un rând, o coloană sau o diagonală.
+## Descriere
 
-## Cum se joacă
+Proiectul implementează jocul clasic X și 0 pe o tablă de 3×3 căsuțe. Se poate juca
+în trei moduri: un om contra calculatorului, doi oameni la aceeași tastatură, sau
+calculator contra calculator. Calculatorul alege mutările cu algoritmul **minimax**,
+deci nu pierde niciodată: câștigă când adversarul greșește, altfel face remiză.
 
-1. La pornire se alege modul de joc:
-   - `1` — un jucător contra calculatorului;
-   - `2` — doi jucători;
-   - `3` — calculator contra calculator (cu o pauză de o secundă după fiecare mutare,
-     ca partida să poată fi urmărită).
-2. Tabla are 9 căsuțe, dispuse pe 3 rânduri și 3 coloane, toate goale la început.
-3. Cei doi jucători mută pe rând: unul joacă cu X, celălalt cu O.
-4. La rândul său, un jucător alege o căsuță liberă (introduce rândul și coloana, 0-2)
-   și își pune simbolul acolo.
-5. O căsuță deja ocupată nu poate fi aleasă din nou.
-6. Partida este câștigată de jucătorul care aliniază trei simboluri identice pe
-   orizontală, verticală sau diagonală.
-7. Dacă toate căsuțele sunt ocupate și nimeni nu a aliniat trei simboluri, partida
-   se termină la egalitate (remiză).
+Rezultatul fiecărei partide se salvează într-o bază de date SQLite (`results.db`),
+iar la finalul jocului se afișează istoricul tuturor partidelor jucate.
 
-## Tipurile de date folosite
+## Regulile jocului
 
-- **Point** (`point.hpp`) — o structură care reține o poziție pe tablă, prin rândul
-  (`row`) și coloana (`col`) sale.
-- **Cell** (`cell.hpp`) — o enumerare ce descrie starea unei căsuțe: goală (Empty),
-  ocupată cu X sau ocupată cu O.
-- **GameResult** (`game_result.hpp`) — o enumerare ce descrie rezultatul jocului:
-  în desfășurare (None), câștig X, câștig O sau remiză (Draw).
-- **Player** (`player.hpp`) — clasă de bază abstractă pentru orice jucător; reține
-  simbolul și declară metoda virtuală pură `GetMove`.
-- **HumanPlayer** (`human_player.hpp`) — jucător uman; citește mutarea de la tastatură.
-- **ComputerPlayer** (`computer_player.hpp`) — jucător controlat de calculator; alege
-  mutarea cu algoritmul **minimax**: analizează toate mutările posibile până la finalul
-  partidei și o alege pe cea mai bună, deci nu pierde niciodată (câștigă sau face
-  remiză). Dintre mutările la fel de bune alege una la întâmplare.
-- **Board** (`board.hpp`) — clasa tablei de joc; păstrează conținutul celor 9 căsuțe
-  și oferă operații de plasare a simbolurilor, golire, verificare dacă e plină și
-  determinarea câștigătorului (`GetWinner`).
-- **GameEngine** (`game_engine.hpp`) — motorul jocului; reunește tabla și jucătorii,
-  ține evidența jucătorului aflat la rând și aplică regulile (mutări valide, verificarea
-  câștigătorului, remiză, schimbarea rândului).
-- **ScoreStore** (`score_store.hpp`) — păstrează rezultatele partidelor într-o bază de
-  date SQLite și afișează istoricul jocurilor.
-- **Drawable** (`drawable.hpp`) — clasă de bază abstractă pentru redare.
-- **Painter** (`painter.hpp`) — componenta de afișare, care desenează tabla pe ecran
-  și afișează mesajele către jucători. Metodele ei sunt `const`, pentru că doar
-  afișează și nu modifică starea jocului.
+1. Tabla are 9 căsuțe, dispuse pe 3 rânduri și 3 coloane, toate goale la început.
+2. Un jucător joacă cu **X**, celălalt cu **O**. **X** mută primul.
+3. Jucătorii mută pe rând. La fiecare mutare jucătorul pune simbolul său într-o
+   căsuță liberă.
+4. O căsuță ocupată nu mai poate fi aleasă. O mutare invalidă (căsuță ocupată sau
+   în afara tablei) este respinsă, iar jucătorul alege din nou.
+5. Câștigă jucătorul care aliniază primul trei simboluri proprii pe un rând, o
+   coloană sau o diagonală.
+6. Dacă toate căsuțele sunt ocupate și nimeni nu a aliniat trei simboluri, partida
+   se termină la egalitate (**remiză**).
+
+### Moduri de joc
+
+La pornire se alege modul de joc:
+
+| Mod | Descriere |
+|-----|-----------|
+| `1` | om (X) contra calculator (O) |
+| `2` | doi oameni (X și O) |
+| `3` | calculator contra calculator, cu o pauză de o secundă după fiecare mutare, ca partida să poată fi urmărită |
+
+O alegere invalidă pornește modul `1`. Mutarea unui om se introduce ca două numere,
+rândul și coloana, fiecare între 0 și 2 (de exemplu `1 1` pentru centru):
+
+```
+ 0,0 | 0,1 | 0,2
+-----+-----+-----
+ 1,0 | 1,1 | 1,2
+-----+-----+-----
+ 2,0 | 2,1 | 2,2
+```
+
+## Dependențe
+
+| Componentă | Rol | Versiune folosită |
+|------------|-----|-------------------|
+| Windows + [MSYS2](https://www.msys2.org/) (terminal MINGW64) | mediul de construire | — |
+| Visual Studio Community | editarea codului | — |
+| `g++` (MinGW-w64) | compilator C++, standardul C++14 | orice versiune cu suport C++14 |
+| `make` | fișierul de construire `Makefile` | GNU Make |
+| `ar` (binutils) | crearea bibliotecii statice `libgame.a` | vine cu `g++` |
+| SQLite 3 | bibliotecă externă pentru istoricul partidelor | 3.x |
+| Doxygen (opțional) | generarea documentației din cod | 1.9 sau mai nou |
+
+Instalarea în terminalul **MSYS2 MINGW64**:
+
+```bash
+pacman -S mingw-w64-x86_64-gcc make mingw-w64-x86_64-sqlite3
+pacman -S mingw-w64-x86_64-doxygen      # opțional, pentru documentație
+```
+
+Pe Linux sunt suficiente pachetele `g++`, `make` și `libsqlite3-dev`.
+
+Testele unitare nu au dependențe externe: folosesc un cadru minimal propriu
+(`tests/test_framework.hpp`).
+
+## Construire și rulare
+
+Toate comenzile se dau din directorul proiectului, în terminalul MINGW64:
+
+```bash
+cd /c/Users/Ovidiu/source/repos/TicTacToe   # directorul proiectului
+make            # construiește jocul
+./TicTacToe.exe # pornește jocul
+```
+
+`make` compilează clasele jocului în fișiere obiect `.o`, le grupează în biblioteca
+statică `libgame.a`, apoi leagă `main.o` de această bibliotecă și de SQLite,
+rezultând `TicTacToe.exe`.
+
+| Comandă | Efect |
+|---------|-------|
+| `make` | construiește jocul (`TicTacToe.exe`) |
+| `make test` | construiește și rulează testele unitare |
+| `make docs` | generează documentația HTML în `docs/html/index.html` (necesită Doxygen) |
+| `make clean` | șterge fișierele generate (obiecte, biblioteci, executabile, documentație) |
+
+## Teste
+
+Testele se află în directorul `tests/` și verifică clasele care reprezintă datele și
+logica jocului. Programul de teste se leagă de aceeași bibliotecă `libgame.a` ca jocul,
+deci testează exact codul care rulează în joc.
+
+```bash
+make test
+```
+
+| Fișier | Ce verifică |
+|--------|-------------|
+| `test_point.cpp` | constructorii `Point`, operatorii `==`, `!=`, `<<`, `>>` și citirea invalidă |
+| `test_board.cpp` | tabla goală, poziții valide/invalide, plasarea simbolurilor, căsuțe ocupate, `Reset`, tabla plină, câștig pe rânduri, coloane și diagonale, remiză, afișarea |
+| `test_players.cpp` | simbolul jucătorilor; `HumanPlayer` citește mutarea și ignoră intrarea greșită; `ComputerPlayer` câștigă când poate, blochează adversarul, **nu pierde în nicio partidă posibilă** (atât cu X, cât și cu O) și face remiză contra altui calculator |
+| `test_score_store.cpp` | salvarea rezultatelor în SQLite, istoricul și păstrarea datelor între sesiuni (pe o bază de date temporară, nu pe `results.db`) |
+
+La final se afișează câte teste au trecut; dacă vreun test pică, `make test` se
+termină cu eroare.
+
+## Documentație
+
+Fiecare fișier header conține comentarii Doxygen: metainformații (proiect, autor,
+an), descrierea clasei sau a tipului de date și descrierea fiecărei metode
+(parametri și valoare returnată). Documentația HTML se generează cu:
+
+```bash
+make docs
+```
+
+și se deschide din `docs/html/index.html`.
+
+## Structura proiectului
+
+| Fișier | Conținut |
+|--------|----------|
+| `cell.hpp` | `Cell` — starea unei căsuțe: goală, X sau O |
+| `game_result.hpp` | `GameResult` — partidă în desfășurare, câștig X, câștig O, remiză |
+| `point.hpp/.cpp` | `Point` — poziție pe tablă (rând, coloană) |
+| `board.hpp/.cpp` | `Board` — tabla 3×3: mutări, verificare tablă plină, câștigător |
+| `player.hpp/.cpp` | `Player` — clasă de bază abstractă pentru jucători |
+| `human_player.hpp/.cpp` | `HumanPlayer` — jucător care introduce mutarea de la tastatură |
+| `computer_player.hpp/.cpp` | `ComputerPlayer` — jucător calculator, algoritmul minimax |
+| `drawable.hpp` | `Drawable` — interfață pentru afișarea tablei |
+| `painter.hpp/.cpp` | `Painter` — afișarea tablei și a mesajelor în consolă |
+| `score_store.hpp/.cpp` | `ScoreStore` — istoricul partidelor în SQLite |
+| `game_engine.hpp/.cpp` | `GameEngine` — alegerea modului, bucla de joc, rezultatul |
+| `main.cpp` | punctul de intrare al jocului |
+| `tests/` | testele unitare |
+| `Makefile` | construirea jocului, a testelor și a documentației |
+| `Doxyfile` | configurarea Doxygen |
+
+## Istoricul laboratoarelor
+
+- **Lab 3 — Constructori și operatori.** Constructori pentru structurile de date,
+  operatori de comparare (`==`, `!=`) și de intrare/ieșire (`>>`, `<<`), clasa de bază
+  abstractă `Drawable` cu `Painter`.
+- **Lab 4 — Biblioteca standard C++.** `std::array` pentru tablă, `std::unique_ptr`
+  pentru jucători, `std::string`, fluxuri I/O, algoritmi STL (`std::fill`,
+  `std::all_of`, `std::none_of`, `std::max_element`). Interfața `Player` cu
+  `HumanPlayer` și `ComputerPlayer` (minimax), remiza, cele trei moduri de joc și pauza
+  `std::this_thread::sleep_for` în modul calculator contra calculator.
+- **Lab 5 — Biblioteci.** Clasele jocului sunt compilate în biblioteca statică proprie
+  `libgame.a`; biblioteca externă SQLite păstrează istoricul partidelor.
+- **Lab 6 — Documentație și teste.** Comentarii Doxygen în toate fișierele header,
+  `Doxyfile`, README complet, testele unitare din `tests/` și țintele `make test` și
+  `make docs`. Testele au scos la iveală o problemă: `Board::GetCell` citea în afara
+  tabloului pentru o poziție invalidă; acum întoarce `Cell::Empty`.
+
+## Utilizarea asistentului AI
+
+La laboratoarele 5 și 6 a fost folosit un asistent AI (LLM). Prompturile și
+răspunsurile sunt păstrate în fișierele `Lab05.md` și `Lab06.md`.
 
 ## Autor
 
-Ovidiu
-
-## Construirea proiectului
-
-Proiectul este scris în C++ și se compilează cu ajutorul compilatorului `g++`
-și al utilitarului `make`.
-
-### Cerințe
-
-- compilatorul MinGW G++
-- utilitarul make
-- biblioteca SQLite (în MSYS2 MINGW64: `pacman -S mingw-w64-x86_64-sqlite3`)
-
-### Pași de construire
-
-Deschideți un terminal în directorul proiectului și rulați:
-
-    make
-
-Comanda `make` compilează clasele jocului în fișiere obiect `.o`, le grupează în
-biblioteca statică `libgame.a`, apoi leagă `main.o` de această bibliotecă și de
-biblioteca externă SQLite, creând executabilul `TicTacToe.exe`.
-
-Pentru a șterge fișierele generate (obiecte și executabil), rulați:
-
-    make clean
-
-### Compilare manuală
-
-Alternativ, un singur fișier poate fi compilat într-un fișier obiect astfel:
-
-    g++ board.cpp -o board.o -c -std=c++14
-
-## Laborator 3 — Constructori și operatori
-
-Pentru structurile de date ale jocului au fost definiți constructori (implicit, cu
-parametri) și operatori (comparare `==` / `!=`, intrare/ieșire `>>` / `<<`).
-Pentru redare a fost definită clasa de bază abstractă `Drawable`, din care moștenește
-clasa `Painter`.
-
-## Laborator 4 — Utilizarea bibliotecii standard C++
-
-La acest laborator jocul a fost rescris pentru a folosi biblioteca standard C++:
-
-- **Containere STL**: tabla folosește `std::array<std::array<Cell,3>,3>` în loc de un
-  tablou C brut.
-- **Smart pointers**: jucătorii sunt ținuți prin `std::unique_ptr<Player>`, fără
-  alocare manuală de memorie.
-- **std::string**: mesajele afișate folosesc `std::string` în loc de `char*`.
-- **Fluxuri I/O**: citirea și afișarea se fac prin `std::cin` / `std::cout` și
-  operatorii `>>` / `<<`.
-- **Algoritmi STL**: `std::fill` (golirea tablei), `std::all_of` / `std::none_of`
-  (tabla plină, linie câștigătoare), `std::max_element` (cea mai bună mutare a
-  calculatorului).
-
-De asemenea, a fost completată logica jocului:
-
-- interfața `Player` (clasă abstractă) cu `HumanPlayer` (joacă de la tastatură) și
-  `ComputerPlayer` (joacă singur cu algoritmul minimax și nu pierde niciodată);
-- starea de remiză (`Draw`) prin enumerarea `GameResult`;
-- bucla principală de joc completă în `GameEngine::Run()`, cu alegerea modului de joc
-  la pornire: om contra calculator, doi oameni, sau calculator contra calculator;
-- în modul calculator contra calculator, după fiecare mutare firul de execuție face o
-  pauză de o secundă (`std::this_thread::sleep_for`), ca mutările să poată fi urmărite,
-  iar la final se afișează care calculator a câștigat sau remiza. Doi jucători perfecți
-  ajung întotdeauna la remiză, deci acesta e rezultatul așteptat.
-
-## Laborator 5 — Crearea și utilizarea bibliotecilor
-
-- **Bibliotecă statică proprie**: clasele jocului (`Point`, `Board`, `Player`,
-  `HumanPlayer`, `ComputerPlayer`, `Painter`, `ScoreStore`, `GameEngine`) sunt compilate
-  în biblioteca statică `libgame.a` (cu `ar rcs`). Aplicația (`main.cpp`) se leagă de ea
-  cu `-L. -lgame`.
-- **Bibliotecă externă SQLite**: rezultatul fiecărei partide (câștigător, mod de joc,
-  data) se salvează în baza de date `results.db`. La finalul jocului se afișează
-  istoricul tuturor partidelor. Aplicația se leagă de SQLite cu `-lsqlite3`.
-- **Fișier de construcție**: `Makefile` a fost rescris — întâi construiește biblioteca
-  `libgame.a`, apoi leagă executabilul de biblioteca proprie și de SQLite.
-
-Prompturile și răspunsurile asistentului AI folosit la acest laborator sunt în
-fișierul `Lab05.md`.
+Ovidiu (`savagebaby1223`), 2026.

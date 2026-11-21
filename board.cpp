@@ -24,6 +24,8 @@ bool Board::PlaceSymbol(const Point& position, Cell symbol) {
 }
 
 Cell Board::GetCell(const Point& position) const {
+    // o pozitie in afara tablei nu are continut: nu citim din afara tabloului
+    if (!IsValid(position)) return Cell::Empty;
     return _cells[position.row][position.col];
 }
 

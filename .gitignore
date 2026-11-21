@@ -20,3 +20,8 @@ ProjectSettings.json
 
 # Log de construire
 *.log
+
+# documentatia generata de Doxygen
+docs/
+# baza de date temporara a testelor
+tests_results.db

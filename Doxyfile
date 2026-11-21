@@ -1,0 +1,23 @@
+# Configurare Doxygen pentru proiectul TicTacToe.
+# Generare: "make docs" sau "doxygen Doxyfile". Rezultat: docs/html/index.html
+
+PROJECT_NAME           = "TicTacToe"
+PROJECT_BRIEF          = "Jocul X si 0 in consola, scris in C++14"
+PROJECT_NUMBER         = "Lab 06"
+OUTPUT_DIRECTORY       = docs
+OUTPUT_LANGUAGE        = Romanian
+INPUT                  = . tests README.md
+FILE_PATTERNS          = *.hpp *.cpp *.md
+RECURSIVE              = NO
+EXCLUDE                = Lab05.md Lab06.md
+USE_MDFILE_AS_MAINPAGE = README.md
+EXTRACT_ALL            = YES
+EXTRACT_PRIVATE        = YES
+EXTRACT_STATIC         = YES
+JAVADOC_AUTOBRIEF      = YES
+SOURCE_BROWSER         = YES
+GENERATE_HTML          = YES
+GENERATE_LATEX         = NO
+HAVE_DOT               = NO
+QUIET                  = YES
+WARN_IF_UNDOCUMENTED   = YES
